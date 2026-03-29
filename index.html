@@ -1,1934 +1,618 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Praveen | Teacher Feedback Portal</title>
-    <link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap)" rel="stylesheet">
-    <style>
-        /* ============================================
-           CSS RESET & ROOT VARIABLES
-           ============================================ */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.7);
-            --text-muted: rgba(255, 255, 255, 0.4);
-            --accent-blue: #00d4ff;
-            --accent-purple: #a855f7;
-            --accent-pink: #ec4899;
-            --accent-green: #10b981;
-            --glow-blue: 0 0 40px rgba(0, 212, 255, 0.3);
-            --glow-purple: 0 0 40px rgba(168, 85, 247, 0.3);
-            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-accent: linear-gradient(135deg, #00d4ff 0%, #a855f7 100%);
-            --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* ============================================
-           BACKGROUND & AMBIENT EFFECTS
-           ============================================ */
-        .bg-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(236, 72, 153, 0.05) 0%, transparent 60%),
-                linear-gradient(180deg, #0a0a0f 0%, #0d1117 50%, #0a0a0f 100%);
-            z-index: -2;
-        }
-
-        .bg-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
-            z-index: -1;
-        }
-
-        .floating-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            pointer-events: none;
-            z-index: -1;
-            animation: floatOrb 20s ease-in-out infinite;
-        }
-
-        .orb-1 {
-            width: 400px;
-            height: 400px;
-            background: var(--accent-blue);
-            top: 10%;
-            left: -10%;
-            animation-delay: 0s;
-        }
-
-        .orb-2 {
-            width: 300px;
-            height: 300px;
-            background: var(--accent-purple);
-            bottom: 20%;
-            right: -5%;
-            animation-delay: -7s;
-        }
-
-        .orb-3 {
-            width: 250px;
-            height: 250px;
-            background: var(--accent-pink);
-            top: 60%;
-            left: 30%;
-            animation-delay: -14s;
-        }
-
-        @keyframes floatOrb {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(30px, -30px) scale(1.1); }
-            50% { transform: translate(-20px, 20px) scale(0.9); }
-            75% { transform: translate(20px, 30px) scale(1.05); }
-        }
-
-        /* ============================================
-           INTRO ANIMATION (HELLO SCREEN)
-           ============================================ */
-        .intro-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.8s var(--transition-smooth), visibility 0.8s;
-        }
-
-        .intro-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .intro-text {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(4rem, 15vw, 12rem);
-            font-weight: 700;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .intro-letter {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(100px) rotateX(-90deg);
-            animation: letterReveal 0.6s var(--transition-smooth) forwards;
-        }
-
-        @keyframes letterReveal {
-            to {
-                opacity: 1;
-                transform: translateY(0) rotateX(0);
-            }
-        }
-
-        /* ============================================
-           MAIN CONTENT WRAPPER
-           ============================================ */
-        .main-content {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 1s var(--transition-smooth), transform 1s var(--transition-smooth);
-        }
-
-        .main-content.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* ============================================
-           NAVIGATION
-           ============================================ */
-        .nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 1rem 2rem;
-            z-index: 1000;
-            transition: all 0.4s var(--transition-smooth);
-        }
-
-        .nav.scrolled {
-            background: rgba(10, 10, 15, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .nav-logo {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color 0.3s;
-            position: relative;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--gradient-accent);
-            transition: width 0.3s var(--transition-smooth);
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        .mobile-menu-btn span {
-            display: block;
-            width: 24px;
-            height: 2px;
-            background: var(--text-primary);
-            margin: 5px 0;
-            transition: all 0.3s;
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 70%;
-                max-width: 300px;
-                height: 100vh;
-                background: rgba(18, 18, 26, 0.98);
-                backdrop-filter: blur(20px);
-                flex-direction: column;
-                padding: 5rem 2rem;
-                gap: 1.5rem;
-                transition: right 0.4s var(--transition-smooth);
-                border-left: 1px solid var(--glass-border);
-            }
-
-            .nav-links.active {
-                right: 0;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-                z-index: 1001;
-            }
-
-            .mobile-menu-btn.active span:nth-child(1) {
-                transform: rotate(45deg) translate(5px, 5px);
-            }
-
-            .mobile-menu-btn.active span:nth-child(2) {
-                opacity: 0;
-            }
-
-            .mobile-menu-btn.active span:nth-child(3) {
-                transform: rotate(-45deg) translate(5px, -5px);
-            }
-        }
-
-        /* ============================================
-           SECTION STYLES
-           ============================================ */
-        section {
-            padding: 6rem 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-
-        .section-label {
-            display: inline-block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: var(--accent-blue);
-            margin-bottom: 1rem;
-            padding: 0.5rem 1rem;
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: 50px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-        }
-
-        .section-title {
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: linear-gradient(180deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .section-subtitle {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* ============================================
-           HERO SECTION
-           ============================================ */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding-top: 80px;
-            position: relative;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .hero-badge-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-green);
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-
-        .hero-title {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(3rem, 10vw, 7rem);
-            font-weight: 700;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-        }
-
-        .hero-title-gradient {
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-tagline {
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
-            color: var(--text-secondary);
-            font-weight: 300;
-            margin-bottom: 3rem;
-            max-width: 600px;
-        }
-
-        .hero-stats {
-            display: flex;
-            gap: 3rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            animation: bounce 2s ease-in-out infinite;
-        }
-
-        .scroll-indicator svg {
-            width: 24px;
-            height: 24px;
-            stroke: var(--text-muted);
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(10px); }
-        }
-
-        /* ============================================
-           GLASSMORPHISM CARD
-           ============================================ */
-        .glass-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 2rem;
-            backdrop-filter: blur(20px);
-            transition: all 0.4s var(--transition-smooth);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: var(--glow-blue);
-        }
-
-        /* ============================================
-           ABOUT SECTION
-           ============================================ */
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        @media (max-width: 900px) {
-            .about-content {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-        }
-
-        .about-image {
-            position: relative;
-        }
-
-        .about-image-wrapper {
-            position: relative;
-            border-radius: 24px;
-            overflow: hidden;
-            aspect-ratio: 4/5;
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(168, 85, 247, 0.2));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .about-image-placeholder {
-            font-size: 8rem;
-            opacity: 0.8;
-        }
-
-        .about-image-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            height: 80%;
-            background: var(--gradient-accent);
-            filter: blur(60px);
-            opacity: 0.3;
-            z-index: -1;
-        }
-
-        .about-text h3 {
-            font-size: 1.75rem;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        .about-text p {
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            font-size: 1.05rem;
-            line-height: 1.8;
-        }
-
-        .about-highlights {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .highlight-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem;
-            background: var(--glass-bg);
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .highlight-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(168, 85, 247, 0.2));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .highlight-text {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* ============================================
-           SUBJECTS SECTION
-           ============================================ */
-        .subjects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .subject-card {
-            padding: 2.5rem;
-            text-align: center;
-        }
-
-        .subject-icon {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            display: block;
-        }
-
-        .subject-name {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .subject-description {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-        }
-
-        /* Circular Progress */
-        .progress-ring {
-            position: relative;
-            width: 140px;
-            height: 140px;
-            margin: 0 auto;
-        }
-
-        .progress-ring svg {
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring-bg {
-            fill: none;
-            stroke: rgba(255, 255, 255, 0.1);
-            stroke-width: 8;
-        }
-
-        .progress-ring-fill {
-            fill: none;
-            stroke-width: 8;
-            stroke-linecap: round;
-            stroke-dasharray: 377;
-            stroke-dashoffset: 377;
-            transition: stroke-dashoffset 1.5s var(--transition-smooth);
-        }
-
-        .progress-ring-fill.social {
-            stroke: url(#gradient-social);
-        }
-
-        .progress-ring-fill.biology {
-            stroke: url(#gradient-biology);
-        }
-
-        .progress-value {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.75rem;
-            font-weight: 700;
-        }
-
-        .progress-label {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 1rem;
-        }
-
-        /* ============================================
-           FEEDBACK FORM SECTION
-           ============================================ */
-        .feedback-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .form-card {
-            padding: 3rem;
-            position: relative;
-        }
-
-        .form-progress {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 3rem;
-        }
-
-        .progress-step {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--glass-bg);
-            border: 2px solid var(--glass-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.4s var(--transition-smooth);
-            position: relative;
-        }
-
-        .progress-step.active {
-            background: var(--gradient-accent);
-            border-color: transparent;
-            box-shadow: var(--glow-blue);
-        }
-
-        .progress-step.completed {
-            background: var(--accent-green);
-            border-color: transparent;
-        }
-
-        .progress-step:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            left: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 1rem;
-            height: 2px;
-            background: var(--glass-border);
-        }
-
-        .progress-step.completed::after {
-            background: var(--accent-green);
-        }
-
-        .form-step {
-            display: none;
-            animation: fadeIn 0.5s var(--transition-smooth);
-        }
-
-        .form-step.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-step h3 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        .form-step p {
-            color: var(--text-muted);
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-secondary);
-        }
-
-        .input-group input,
-        .input-group textarea {
-            width: 100%;
-            padding: 1rem 1.25rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            font-family: inherit;
-            transition: all 0.3s var(--transition-smooth);
-            resize: none;
-        }
-
-        .input-group input:focus,
-        .input-group textarea:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
-        }
-
-        .input-group input::placeholder,
-        .input-group textarea::placeholder {
-            color: var(--text-muted);
-        }
-
-        /* Star Rating */
-        .star-rating {
-            display: flex;
-            justify-content: center;
-            gap: 0.75rem;
-            margin: 2rem 0;
-        }
-
-        .star {
-            font-size: 3rem;
-            cursor: pointer;
-            transition: all 0.2s var(--transition-bounce);
-            filter: grayscale(100%) opacity(0.3);
-        }
-
-        .star:hover,
-        .star.hovered {
-            transform: scale(1.2);
-            filter: grayscale(0%) opacity(1);
-        }
-
-        .star.selected {
-            filter: grayscale(0%) opacity(1);
-            animation: starPop 0.4s var(--transition-bounce);
-        }
-
-        @keyframes starPop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.4); }
-            100% { transform: scale(1); }
-        }
-
-        .rating-text {
-            text-align: center;
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            min-height: 1.5rem;
-        }
-
-        /* Form Buttons */
-        .form-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s var(--transition-smooth);
-            border: none;
-            font-family: inherit;
-        }
-
-        .btn-secondary {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-primary {
-            background: var(--gradient-accent);
-            color: var(--bg-primary);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn-primary:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--glow-blue);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Thank You Screen */
-        .thank-you {
-            text-align: center;
-            padding: 2rem 0;
-        }
-
-        .thank-you-icon {
-            font-size: 5rem;
-            margin-bottom: 1.5rem;
-            animation: celebratePop 0.6s var(--transition-bounce);
-        }
-
-        @keyframes celebratePop {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .thank-you h3 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .thank-you p {
-            color: var(--text-secondary);
-        }
-
-        /* ============================================
-           REVIEWS SECTION
-           ============================================ */
-        .reviews-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .average-rating {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            background: var(--glass-bg);
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .average-rating-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .average-rating-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .average-rating-stars {
-            font-size: 1.25rem;
-            letter-spacing: 2px;
-        }
-
-        .average-rating-count {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .reviews-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .review-card {
-            padding: 1.5rem;
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .review-author {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .review-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: var(--gradient-accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .review-name {
-            font-weight: 600;
-        }
-
-        .review-date {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .review-stars {
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-        }
-
-        .review-message {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.7;
-        }
-
-        .no-reviews {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-muted);
-        }
-
-        .no-reviews-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        /* ============================================
-           DEVELOPER SECTION
-           ============================================ */
-        .developer-section {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(168, 85, 247, 0.1));
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            padding: 3rem;
-            text-align: center;
-            margin-top: 4rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .developer-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
-        }
-
-        .developer-badge {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: 50px;
-            font-size: 0.8rem;
-            color: var(--accent-blue);
-            margin-bottom: 1.5rem;
-        }
-
-        .developer-title {
-            font-size: 1.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .developer-text {
-            color: var(--text-secondary);
-            max-width: 500px;
-            margin: 0 auto 2rem;
-        }
-
-        .developer-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 2rem;
-            background: var(--gradient-accent);
-            color: var(--bg-primary);
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s var(--transition-smooth);
-        }
-
-        .developer-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--glow-blue);
-        }
-
-        /* ============================================
-           FOOTER
-           ============================================ */
-        footer {
-            padding: 3rem 1.5rem;
-            text-align: center;
-            border-top: 1px solid var(--glass-border);
-            margin-top: 4rem;
-        }
-
-        .footer-text {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .footer-heart {
-            color: var(--accent-pink);
-            animation: heartbeat 1.5s ease-in-out infinite;
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* ============================================
-           SCROLL ANIMATIONS
-           ============================================ */
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.8s var(--transition-smooth), transform 0.8s var(--transition-smooth);
-        }
-
-        .animate-on-scroll.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .animate-on-scroll[data-delay="1"] { transition-delay: 0.1s; }
-        .animate-on-scroll[data-delay="2"] { transition-delay: 0.2s; }
-        .animate-on-scroll[data-delay="3"] { transition-delay: 0.3s; }
-        .animate-on-scroll[data-delay="4"] { transition-delay: 0.4s; }
-
-        /* ============================================
-           UTILITY CLASSES
-           ============================================ */
-        .text-gradient {
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* ============================================
-           RESPONSIVE ADJUSTMENTS
-           ============================================ */
-        @media (max-width: 600px) {
-            section {
-                padding: 4rem 1rem;
-            }
-
-            .form-card {
-                padding: 2rem 1.5rem;
-            }
-
-            .about-highlights {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-stats {
-                gap: 2rem;
-            }
-
-            .star {
-                font-size: 2.5rem;
-            }
-
-            .average-rating {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Praveen Sir | Teacher Feedback Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+:root {
+  --neon-cyan: #00f5ff;
+  --neon-purple: #bf5af2;
+  --neon-pink: #ff2d55;
+  --neon-green: #30d158;
+  --neon-gold: #ffd60a;
+  --bg-deep: #020510;
+  --bg-dark: #060d1f;
+  --glass-bg: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.10);
+  --glass-border-glow: rgba(0,245,255,0.3);
+  --text-primary: #f0f4ff;
+  --text-secondary: rgba(200,210,255,0.65);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-body);overflow-x:hidden;cursor:none}
+
+/* CURSOR */
+.cursor{position:fixed;width:10px;height:10px;background:var(--neon-cyan);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:34px;height:34px;border:1.5px solid rgba(0,245,255,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .12s ease,top .12s ease,width .25s,height .25s;mix-blend-mode:screen}
+
+/* LOADER */
+#loader{position:fixed;inset:0;z-index:10000;background:var(--bg-deep);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;transition:opacity .9s ease,visibility .9s}
+#loader.hidden{opacity:0;visibility:hidden}
+.loader-name{font-family:var(--font-display);font-size:clamp(2.2rem,7vw,4.5rem);font-weight:800;letter-spacing:.22em;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.loader-bar-bg{width:240px;height:3px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+.loader-bar{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));border-radius:99px;animation:loadProg 1.9s ease forwards}
+@keyframes loadProg{from{width:0}to{width:100%}}
+.loader-sub{font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-secondary)}
+
+/* GRID */
+.grid-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,245,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,.025) 1px,transparent 1px);background-size:65px 65px}
+
+/* ORBS */
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.16;pointer-events:none;z-index:0;animation:orbF 14s ease-in-out infinite alternate}
+.orb1{width:700px;height:700px;background:radial-gradient(circle,var(--neon-purple),transparent);top:-250px;left:-250px;animation-duration:16s}
+.orb2{width:600px;height:600px;background:radial-gradient(circle,var(--neon-cyan),transparent);bottom:-200px;right:-200px;animation-duration:11s;animation-delay:-5s}
+.orb3{width:400px;height:400px;background:radial-gradient(circle,var(--neon-pink),transparent);top:45%;left:58%;animation-duration:18s;animation-delay:-9s}
+@keyframes orbF{from{transform:translate(0,0) scale(1)}to{transform:translate(50px,35px) scale(1.1)}}
+
+section{position:relative;z-index:1}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(2,5,16,.75);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.05)}
+.nav-logo{font-family:var(--font-display);font-weight:800;font-size:1.15rem;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:.88rem;font-weight:400;transition:color .3s}
+.nav-links a:hover{color:var(--neon-cyan)}
+@media(max-width:600px){.nav-links{display:none}}
+
+/* HERO */
+#hero{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem;overflow:hidden}
+.hero-badge{display:inline-flex;align-items:center;gap:9px;background:rgba(0,245,255,.07);border:1px solid rgba(0,245,255,.25);border-radius:99px;padding:7px 20px;font-size:.78rem;font-weight:500;letter-spacing:.13em;color:var(--neon-cyan);text-transform:uppercase;margin-bottom:2.2rem;opacity:0;animation:fadeUp .8s ease 2.1s forwards}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:var(--neon-cyan);box-shadow:0 0 10px var(--neon-cyan);animation:pulse 1.6s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.hero-name{font-family:var(--font-display);font-size:clamp(4.5rem,15vw,11rem);font-weight:800;line-height:.95;letter-spacing:-.03em;display:flex;justify-content:center;margin-bottom:1.4rem}
+.hero-name .char{display:inline-block;background:linear-gradient(135deg,#fff 0%,var(--neon-cyan) 55%,var(--neon-purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 22px rgba(0,245,255,.28));opacity:0;transform:translateY(45px)}
+.hero-tagline{font-size:clamp(1rem,2.5vw,1.45rem);font-weight:300;color:var(--text-secondary);letter-spacing:.04em;max-width:520px;opacity:0;animation:fadeUp .8s ease 2.5s forwards;margin-bottom:2.8rem}
+.hero-tagline strong{color:var(--neon-cyan);font-weight:500}
+.hero-chips{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s ease 2.7s forwards;margin-bottom:3rem}
+.chip{padding:9px 22px;border-radius:99px;font-size:.84rem;font-weight:500;backdrop-filter:blur(14px);border:1px solid}
+.chip-s{background:rgba(191,90,242,.12);border-color:rgba(191,90,242,.35);color:var(--neon-purple)}
+.chip-b{background:rgba(48,209,88,.1);border-color:rgba(48,209,88,.35);color:var(--neon-green)}
+.btn-glow{display:inline-flex;align-items:center;gap:10px;padding:17px 46px;border-radius:99px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));color:#000;font-family:var(--font-display);font-size:1rem;font-weight:700;border:none;cursor:none;box-shadow:0 0 35px rgba(0,245,255,.4),0 0 70px rgba(191,90,242,.2);transition:transform .25s,box-shadow .25s;text-decoration:none;opacity:0;animation:fadeUp .8s ease 2.9s forwards;position:relative;overflow:hidden}
+.btn-glow::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.22),transparent);transform:translateX(-100%) skewX(-15deg);transition:transform .55s}
+.btn-glow:hover::before{transform:translateX(220%) skewX(-15deg)}
+.btn-glow:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 0 55px rgba(0,245,255,.65),0 0 90px rgba(191,90,242,.35)}
+.scroll-ind{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fadeIn 1s ease 3.3s forwards}
+.scroll-ind span{font-size:.68rem;letter-spacing:.16em;color:var(--text-secondary);text-transform:uppercase}
+.scroll-line{width:1px;height:52px;background:linear-gradient(to bottom,var(--neon-cyan),transparent);animation:sLine 2.2s ease infinite}
+@keyframes sLine{0%,100%{opacity:.3;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ABOUT */
+#about{padding:clamp(5rem,10vw,10rem) 2rem}
+.section-label{font-size:.74rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:1rem;opacity:0;transform:translateY(20px);transition:opacity .7s,transform .7s}
+.section-label.vis{opacity:1;transform:translateY(0)}
+.section-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.6rem);font-weight:800;line-height:1.1;margin-bottom:1.5rem;opacity:0;transform:translateY(28px);transition:opacity .7s .1s,transform .7s .1s}
+.section-title.vis{opacity:1;transform:translateY(0)}
+.hl{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:3.5rem;max-width:1100px;margin-left:auto;margin-right:auto}
+@media(max-width:768px){.about-grid{grid-template-columns:1fr}}
+.glass-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:22px;padding:2rem;backdrop-filter:blur(22px);opacity:0;transform:translateY(32px);transition:opacity .7s,transform .7s,border-color .3s,box-shadow .3s}
+.glass-card.vis{opacity:1;transform:translateY(0)}
+.glass-card:hover{border-color:var(--glass-border-glow);box-shadow:0 0 35px rgba(0,245,255,.08),0 24px 64px rgba(0,0,0,.3);transform:translateY(-5px)!important}
+.about-bio p{color:var(--text-secondary);font-size:1rem;line-height:1.85;margin-bottom:1.2rem}
+.about-bio p:last-child{margin-bottom:0}
+.exp-tag{color:var(--neon-cyan);font-weight:500;font-size:.88rem;margin-top:1.2rem;display:flex;align-items:center;gap:8px}
+.sub-list{display:flex;flex-direction:column;gap:1rem}
+.sub-item{display:flex;align-items:center;gap:14px;padding:1rem 1.2rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:13px;transition:background .3s,border-color .3s}
+.sub-item:hover{background:rgba(0,245,255,.05);border-color:rgba(0,245,255,.2)}
+.sub-icon{font-size:1.9rem}
+.sub-name{font-family:var(--font-display);font-weight:600;font-size:1rem}
+.sub-desc{font-size:.78rem;color:var(--text-secondary);margin-top:3px}
+
+/* SKILLS */
+#skills{padding:clamp(5rem,10vw,10rem) 2rem}
+.skills-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:920px;margin:3.5rem auto 0}
+@media(max-width:640px){.skills-grid{grid-template-columns:1fr}}
+.skill-card{text-align:center;padding:2.5rem 1.5rem}
+.circ-wrap{position:relative;width:134px;height:134px;margin:0 auto 1.5rem}
+.circ-svg{position:absolute;inset:0;width:134px;height:134px;transform:rotate(-90deg)}
+circle.cbg{fill:none;stroke:rgba(255,255,255,.05);stroke-width:7}
+circle.cpg{fill:none;stroke-width:7;stroke-linecap:round;stroke-dasharray:369;stroke-dashoffset:369;transition:stroke-dashoffset 1.6s cubic-bezier(.22,1,.36,1)}
+.cpg1{stroke:url(#g1);filter:drop-shadow(0 0 7px var(--neon-cyan))}
+.cpg2{stroke:url(#g2);filter:drop-shadow(0 0 7px var(--neon-purple))}
+.cpg3{stroke:url(#g3);filter:drop-shadow(0 0 7px var(--neon-green))}
+.circ-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.circ-pct{font-family:var(--font-display);font-size:1.9rem;font-weight:800}
+.sk-label{font-family:var(--font-display);font-weight:700;font-size:1rem;margin-bottom:.4rem}
+.sk-sub{font-size:.8rem;color:var(--text-secondary)}
+
+/* FEEDBACK */
+#feedback{padding:clamp(5rem,10vw,10rem) 2rem}
+.avg-box{display:inline-flex;align-items:center;gap:16px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:18px;padding:1.1rem 2.2rem;margin:2rem auto;backdrop-filter:blur(22px);opacity:0;transform:translateY(22px);transition:opacity .7s .2s,transform .7s .2s}
+.avg-box.vis{opacity:1;transform:translateY(0)}
+.avg-score{font-family:var(--font-display);font-size:2.6rem;font-weight:800;background:linear-gradient(90deg,var(--neon-gold),#ff9f0a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.avg-stars{font-size:1.3rem;letter-spacing:3px}
+.avg-lbl{font-family:var(--font-display);font-weight:700;font-size:1rem}
+.avg-info{font-size:.84rem;color:var(--text-secondary);margin-top:3px}
+
+/* FORM */
+.form-wrap{max-width:620px;margin:0 auto;opacity:0;transform:translateY(32px);transition:opacity .7s .3s,transform .7s .3s}
+.form-wrap.vis{opacity:1;transform:translateY(0)}
+.form-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:26px;padding:2.6rem;backdrop-filter:blur(32px);box-shadow:0 24px 90px rgba(0,0,0,.45);position:relative;overflow:hidden}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple),var(--neon-pink))}
+.step-dots{display:flex;gap:8px;margin-bottom:2.2rem}
+.sdot{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.09);transition:background .4s}
+.sdot.on{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple))}
+.form-step{display:none;animation:sFade .4s ease}
+.form-step.on{display:block}
+@keyframes sFade{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+.step-num{font-size:.73rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:.5rem}
+.step-head{font-family:var(--font-display);font-size:1.65rem;font-weight:700;margin-bottom:1.8rem}
+.finput{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:15px;padding:17px 21px;color:var(--text-primary);font-family:var(--font-body);font-size:1rem;outline:none;transition:border-color .3s,box-shadow .3s;resize:none}
+.finput::placeholder{color:rgba(200,210,255,.32)}
+.finput:focus{border-color:var(--neon-cyan);box-shadow:0 0 0 3px rgba(0,245,255,.1),0 0 24px rgba(0,245,255,.07)}
+textarea.finput{min-height:145px}
+.star-row{display:flex;gap:10px;justify-content:center;margin:1.2rem 0 1.8rem}
+.sbtn{font-size:2.9rem;cursor:none;transition:transform .2s,filter .2s;filter:grayscale(1) brightness(.45);background:none;border:none}
+.sbtn:hover{filter:drop-shadow(0 0 9px var(--neon-gold)) brightness(1.1);transform:scale(1.25)!important}
+.sbtn.on{filter:drop-shadow(0 0 12px var(--neon-gold)) brightness(1.1);transform:scale(1.15)}
+.rate-lbl{text-align:center;font-size:.9rem;color:var(--text-secondary);margin-bottom:1.5rem;min-height:1.3em}
+.btn-next{width:100%;padding:17px;border-radius:15px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));color:#000;font-family:var(--font-display);font-size:1rem;font-weight:700;border:none;cursor:none;transition:transform .22s,box-shadow .22s,opacity .2s;box-shadow:0 0 28px rgba(0,245,255,.32)}
+.btn-next:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 0 45px rgba(0,245,255,.55)}
+.btn-next:disabled{opacity:.5}
+.ty-step{text-align:center;padding:1rem 0}
+.ty-icon{font-size:5.5rem;margin-bottom:1rem;animation:bPop .65s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bPop{from{transform:scale(0)}to{transform:scale(1)}}
+.ty-title{font-family:var(--font-display);font-size:2.1rem;font-weight:800;margin-bottom:.8rem}
+.ty-desc{color:var(--text-secondary);margin-bottom:2rem;line-height:1.8}
+.btn-again{padding:13px 36px;border-radius:99px;background:rgba(0,245,255,.09);border:1px solid rgba(0,245,255,.3);color:var(--neon-cyan);font-family:var(--font-display);font-weight:600;font-size:.95rem;cursor:none;transition:background .3s,box-shadow .3s}
+.btn-again:hover{background:rgba(0,245,255,.18);box-shadow:0 0 22px rgba(0,245,255,.22)}
+
+/* REVIEWS */
+.reviews-area{max-width:1000px;margin:4rem auto 0}
+.rev-head{font-family:var(--font-display);font-size:1.6rem;font-weight:700;margin-bottom:1.8rem;opacity:0;transform:translateY(22px);transition:opacity .6s,transform .6s}
+.rev-head.vis{opacity:1;transform:translateY(0)}
+#rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.3rem}
+.rev-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:18px;padding:1.6rem;backdrop-filter:blur(18px);animation:rFade .6s ease both;transition:border-color .3s,box-shadow .3s,transform .3s}
+@keyframes rFade{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+.rev-card:hover{border-color:var(--glass-border-glow);box-shadow:0 12px 45px rgba(0,245,255,.07);transform:translateY(-4px)}
+.rev-name{font-family:var(--font-display);font-weight:700;font-size:1rem;margin-bottom:4px}
+.rev-date{font-size:.74rem;color:var(--text-secondary);margin-bottom:.8rem}
+.rev-stars{font-size:1.05rem;letter-spacing:2px;margin-bottom:.7rem}
+.rev-msg{font-size:.88rem;color:var(--text-secondary);line-height:1.65}
+.no-rev{text-align:center;color:var(--text-secondary);padding:3.5rem;grid-column:1/-1;font-size:.95rem}
+
+/* UTILS */
+.tc{text-align:center}
+.mxa{max-width:1100px;margin-left:auto;margin-right:auto}
+
+footer{text-align:center;padding:3rem 2rem;border-top:1px solid rgba(255,255,255,.05);color:var(--text-secondary);font-size:.84rem;position:relative;z-index:1}
+footer span{color:var(--neon-cyan)}
+</style>
 </head>
 <body>
-    <!-- Background Effects -->
-    <div class="bg-gradient"></div>
-    <div class="bg-grid"></div>
-    <div class="floating-orb orb-1"></div>
-    <div class="floating-orb orb-2"></div>
-    <div class="floating-orb orb-3"></div>
 
-    <!-- SVG Gradients for Progress Rings -->
-    <svg width="0" height="0" style="position: absolute;">
-        <defs>
-            <linearGradient id="gradient-social" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#00d4ff" />
-                <stop offset="100%" stop-color="#a855f7" />
-            </linearGradient>
-            <linearGradient id="gradient-biology" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#10b981" />
-                <stop offset="100%" stop-color="#00d4ff" />
-            </linearGradient>
-        </defs>
-    </svg>
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="curR"></div>
 
-    <!-- Intro Animation Screen -->
-    <div class="intro-screen" id="introScreen">
-        <div class="intro-text" id="introText"></div>
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-name"> PRAVEEN </div>
+  <div class="loader-bar-bg"><div class="loader-bar"></div></div>
+  <div class="loader-sub">Teacher Feedback Portal</div>
+</div>
+
+<div class="grid-overlay"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Praveen</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#feedback">Feedback</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge"><span class="badge-dot"></span>Teacher Feedback Portal</div>
+  <h1 class="hero-name" id="heroName"></h1>
+  <p class="hero-tagline">Inspiring students through <strong>Social Studies</strong> &amp; <strong>Biology</strong></p>
+  <div class="hero-chips">
+    <span class="chip chip-s">📚 Social Studies</span>
+    <span class="chip chip-b">🧬 Biology</span>
+  </div>
+  <a href="#feedback" class="btn-glow">Give Feedback ✨</a>
+  <div class="scroll-ind">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="mxa">
+    <div class="tc">
+      <div class="section-label ae">About the Teacher</div>
+      <h2 class="section-title ae">Shaping <span class="hl">Curious Minds</span></h2>
+    </div>
+    <div class="about-grid">
+      <div class="glass-card about-bio ae" style="transition-delay:.15s">
+        <p>Praveen Sir is a dedicated educator with a passion for making complex subjects accessible and engaging. With years of classroom experience, he blends real-world examples with curriculum depth to help every student excel.</p>
+        <p>Known for his patient approach and clear explanations, Praveen Sir creates an environment where curiosity is celebrated and every question deserves a thoughtful answer.</p>
+        <p>His teaching style is structured yet flexible — adapting to different learning speeds and ensuring no student is left behind.</p>
+        <div class="exp-tag">✦ 10+ Years of Teaching Experience</div>
+      </div>
+      <div class="glass-card ae" style="transition-delay:.28s">
+        <div style="font-size:.73rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:1.3rem">Subjects Taught</div>
+        <div class="sub-list">
+          <div class="sub-item">
+            <span class="sub-icon">🌍</span>
+            <div>
+              <div class="sub-name">Social Studies</div>
+              <div class="sub-desc">History, Civics, Geography &amp; Economics</div>
+            </div>
+          </div>
+          <div class="sub-item">
+            <span class="sub-icon">🧬</span>
+            <div>
+              <div class="sub-name">Biology</div>
+              <div class="sub-desc">Life Sciences, Human Anatomy &amp; Ecology</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="mxa tc">
+    <div class="section-label ae">Expertise</div>
+    <h2 class="section-title ae">Skills &amp; <span class="hl">Competencies</span></h2>
+    <div class="skills-grid">
+
+      <div class="glass-card skill-card ae" style="transition-delay:.1s">
+        <div class="circ-wrap">
+          <svg class="circ-svg" viewBox="0 0 134 134">
+            <defs>
+              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00f5ff"/>
+                <stop offset="100%" stop-color="#bf5af2"/>
+              </linearGradient>
+            </defs>
+            <circle class="cbg" cx="67" cy="67" r="58.8"/>
+            <circle class="cpg cpg1" cx="67" cy="67" r="58.8" data-pct="95"/>
+          </svg>
+          <div class="circ-inner">
+            <span class="circ-pct" style="background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent" data-target="95">0%</span>
+          </div>
+        </div>
+        <div class="sk-label">Teaching Skill</div>
+        <div class="sk-sub">Curriculum delivery &amp; pedagogy</div>
+      </div>
+
+      <div class="glass-card skill-card ae" style="transition-delay:.22s">
+        <div class="circ-wrap">
+          <svg class="circ-svg" viewBox="0 0 134 134">
+            <defs>
+              <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#bf5af2"/>
+                <stop offset="100%" stop-color="#ff2d55"/>
+              </linearGradient>
+            </defs>
+            <circle class="cbg" cx="67" cy="67" r="58.8"/>
+            <circle class="cpg cpg2" cx="67" cy="67" r="58.8" data-pct="90"/>
+          </svg>
+          <div class="circ-inner">
+            <span class="circ-pct" style="background:linear-gradient(135deg,var(--neon-purple),var(--neon-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent" data-target="90">0%</span>
+          </div>
+        </div>
+        <div class="sk-label">Student Interaction</div>
+        <div class="sk-sub">Engagement &amp; communication</div>
+      </div>
+
+      <div class="glass-card skill-card ae" style="transition-delay:.34s">
+        <div class="circ-wrap">
+          <svg class="circ-svg" viewBox="0 0 134 134">
+            <defs>
+              <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#30d158"/>
+                <stop offset="100%" stop-color="#00f5ff"/>
+              </linearGradient>
+            </defs>
+            <circle class="cbg" cx="67" cy="67" r="58.8"/>
+            <circle class="cpg cpg3" cx="67" cy="67" r="58.8" data-pct="92"/>
+          </svg>
+          <div class="circ-inner">
+            <span class="circ-pct" style="background:linear-gradient(135deg,var(--neon-green),var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent" data-target="92">0%</span>
+          </div>
+        </div>
+        <div class="sk-label">Knowledge</div>
+        <div class="sk-sub">Subject depth &amp; accuracy</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FEEDBACK -->
+<section id="feedback">
+  <div class="mxa">
+    <div class="tc">
+      <div class="section-label ae">Your Voice Matters</div>
+      <h2 class="section-title ae">Share Your <span class="hl">Feedback</span></h2>
     </div>
 
-    <!-- Navigation -->
-    <nav class="nav" id="nav">
-        <div class="nav-container">
-            <div class="nav-logo">Praveen</div>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="#hero" onclick="closeMenu()">Home</a></li>
-                <li><a href="#about" onclick="closeMenu()">About</a></li>
-                <li><a href="#subjects" onclick="closeMenu()">Subjects</a></li>
-                <li><a href="#feedback" onclick="closeMenu()">Feedback</a></li>
-                <li><a href="#reviews" onclick="closeMenu()">Reviews</a></li>
-            </ul>
-            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+    <!-- Average Rating -->
+    <div class="tc">
+      <div class="avg-box ae" id="avgBox">
+        <div>
+          <div class="avg-score" id="avgScore">—</div>
+          <div class="avg-stars" id="avgStars">☆☆☆☆☆</div>
         </div>
-    </nav>
+        <div>
+          <div class="avg-lbl">Average Rating</div>
+          <div class="avg-info" id="avgInfo">No reviews yet</div>
+        </div>
+      </div>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-content" id="mainContent">
-        <!-- Hero Section -->
-        <section class="hero" id="hero">
-            <div class="hero-badge animate-on-scroll">
-                <span class="hero-badge-dot"></span>
-                Available for mentoring
-            </div>
-            <h1 class="hero-title animate-on-scroll" data-delay="1">
-                <span class="hero-title-gradient">Praveen</span>
-            </h1>
-            <p class="hero-tagline animate-on-scroll" data-delay="2">
-                Teaching with passion, guiding with purpose
-            </p>
-            <div class="hero-stats animate-on-scroll" data-delay="3">
-                <div class="stat-item">
-                    <div class="stat-value" id="statYears">10+</div>
-                    <div class="stat-label">Years Experience</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="statStudents">500+</div>
-                    <div class="stat-label">Students Taught</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="statRating">4.9</div>
-                    <div class="stat-label">Average Rating</div>
-                </div>
-            </div>
-            <div class="scroll-indicator">
-                <span>Scroll to explore</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
-                </svg>
-            </div>
-        </section>
+    <!-- FORM -->
+    <div class="form-wrap ae" id="formWrap">
+      <div class="form-card">
+        <div class="step-dots">
+          <div class="sdot on" id="d1"></div>
+          <div class="sdot" id="d2"></div>
+          <div class="sdot" id="d3"></div>
+          <div class="sdot" id="d4"></div>
+        </div>
 
-        <!-- About Section -->
-        <section id="about">
-            <div class="section-header">
-                <span class="section-label animate-on-scroll">About Me</span>
-                <h2 class="section-title animate-on-scroll" data-delay="1">Meet Your Mentor</h2>
-                <p class="section-subtitle animate-on-scroll" data-delay="2">
-                    Dedicated to inspiring the next generation of learners
-                </p>
-            </div>
-            <div class="about-content">
-                <div class="about-image animate-on-scroll">
-                    <div class="about-image-glow"></div>
-                    <div class="about-image-wrapper">
-                        <span class="about-image-placeholder">👨‍🏫</span>
-                    </div>
-                </div>
-                <div class="about-text">
-                    <h3 class="animate-on-scroll">Passionate Educator & Mentor</h3>
-                    <p class="animate-on-scroll" data-delay="1">
-                        With over a decade of experience in education, I've dedicated my career to making complex concepts accessible and engaging. My teaching philosophy centers on understanding each student's unique learning style and adapting my approach accordingly.
-                    </p>
-                    <p class="animate-on-scroll" data-delay="2">
-                        I believe that every student has the potential to excel when given the right guidance and support. Through clear explanations, practical examples, and a supportive learning environment, I help students not just understand their subjects, but develop a genuine love for learning.
-                    </p>
-                    <div class="about-highlights animate-on-scroll" data-delay="3">
-                        <div class="highlight-item">
-                            <div class="highlight-icon">🎯</div>
-                            <span class="highlight-text">Clear Teaching Style</span>
-                        </div>
-                        <div class="highlight-item">
-                            <div class="highlight-icon">💡</div>
-                            <span class="highlight-text">Concept Clarity</span>
-                        </div>
-                        <div class="highlight-item">
-                            <div class="highlight-icon">🤝</div>
-                            <span class="highlight-text">Student Support</span>
-                        </div>
-                        <div class="highlight-item">
-                            <div class="highlight-icon">📈</div>
-                            <span class="highlight-text">Result Oriented</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- Step 1 -->
+        <div class="form-step on" id="s1">
+          <div class="step-num">Step 01 / 03</div>
+          <h3 class="step-head">What's your name? 👋</h3>
+          <input type="text" class="finput" id="iName" placeholder="Enter your name…" maxlength="60"/>
+          <br><br>
+          <button class="btn-next" onclick="goTo(2)">Continue →</button>
+        </div>
 
-        <!-- Subjects Section -->
-        <section id="subjects">
-            <div class="section-header">
-                <span class="section-label animate-on-scroll">Expertise</span>
-                <h2 class="section-title animate-on-scroll" data-delay="1">Subjects I Teach</h2>
-                <p class="section-subtitle animate-on-scroll" data-delay="2">
-                    Specialized in making these subjects engaging and understandable
-                </p>
-            </div>
-            <div class="subjects-grid">
-                <div class="glass-card subject-card animate-on-scroll">
-                    <span class="subject-icon">🌍</span>
-                    <h3 class="subject-name">Social Studies</h3>
-                    <p class="subject-description">History, Geography, Civics & Economics</p>
-                    <div class="progress-ring" data-progress="92" data-type="social">
-                        <svg width="140" height="140">
-                            <circle class="progress-ring-bg" cx="70" cy="70" r="60"/>
-                            <circle class="progress-ring-fill social" cx="70" cy="70" r="60"/>
-                        </svg>
-                        <div class="progress-value">92%</div>
-                    </div>
-                    <div class="progress-label">Experience Level</div>
-                </div>
-                <div class="glass-card subject-card animate-on-scroll" data-delay="1">
-                    <span class="subject-icon">🧬</span>
-                    <h3 class="subject-name">Biology</h3>
-                    <p class="subject-description">Life Sciences, Anatomy & Ecology</p>
-                    <div class="progress-ring" data-progress="88" data-type="biology">
-                        <svg width="140" height="140">
-                            <circle class="progress-ring-bg" cx="70" cy="70" r="60"/>
-                            <circle class="progress-ring-fill biology" cx="70" cy="70" r="60"/>
-                        </svg>
-                        <div class="progress-value">88%</div>
-                    </div>
-                    <div class="progress-label">Experience Level</div>
-                </div>
-            </div>
-        </section>
+        <!-- Step 2 -->
+        <div class="form-step" id="s2">
+          <div class="step-num">Step 02 / 03</div>
+          <h3 class="step-head">Share your experience 💬</h3>
+          <textarea class="finput" id="iMsg" placeholder="Tell us about your experience with Praveen Sir…"></textarea>
+          <br><br>
+          <button class="btn-next" onclick="goTo(3)">Continue →</button>
+        </div>
 
-        <!-- Feedback Section -->
-        <section id="feedback">
-            <div class="section-header">
-                <span class="section-label animate-on-scroll">Share Your Experience</span>
-                <h2 class="section-title animate-on-scroll" data-delay="1">Leave Feedback</h2>
-                <p class="section-subtitle animate-on-scroll" data-delay="2">
-                    Your feedback helps me improve and motivates me to do better
-                </p>
-            </div>
-            <div class="feedback-container">
-                <div class="glass-card form-card animate-on-scroll" data-delay="3">
-                    <div class="form-progress">
-                        <div class="progress-step active" data-step="1">1</div>
-                        <div class="progress-step" data-step="2">2</div>
-                        <div class="progress-step" data-step="3">3</div>
-                        <div class="progress-step" data-step="4">✓</div>
-                    </div>
+        <!-- Step 3 -->
+        <div class="form-step" id="s3">
+          <div class="step-num">Step 03 / 03</div>
+          <h3 class="step-head">Rate the teaching ⭐</h3>
+          <div class="star-row" id="starRow">
+            <button class="sbtn" data-v="1" onclick="setR(1)">⭐</button>
+            <button class="sbtn" data-v="2" onclick="setR(2)">⭐</button>
+            <button class="sbtn" data-v="3" onclick="setR(3)">⭐</button>
+            <button class="sbtn" data-v="4" onclick="setR(4)">⭐</button>
+            <button class="sbtn" data-v="5" onclick="setR(5)">⭐</button>
+          </div>
+          <div class="rate-lbl" id="rateLbl">Tap a star to rate</div>
+          <button class="btn-next" id="subBtn" onclick="doSubmit()">Send Feedback 🚀</button>
+        </div>
 
-                    <form id="feedbackForm">
-                        <!-- Step 1: Name -->
-                        <div class="form-step active" data-step="1">
-                            <h3>What's your name?</h3>
-                            <p>Let me know who's sharing their thoughts</p>
-                            <div class="input-group">
-                                <label for="userName">Your Name</label>
-                                <input type="text" id="userName" placeholder="Enter your name" required autocomplete="name">
-                            </div>
-                            <div class="form-buttons">
-                                <button type="button" class="btn btn-primary" onclick="nextStep()">Continue</button>
-                            </div>
-                        </div>
+        <!-- Step 4 -->
+        <div class="form-step ty-step" id="s4">
+          <div class="ty-icon">🎉</div>
+          <h3 class="ty-title">Thank You!</h3>
+          <p class="ty-desc">Your feedback has been submitted successfully.<br>Praveen Sir truly appreciates your kind words!</p>
+          <button class="btn-again" onclick="resetF()">Submit Another Feedback</button>
+        </div>
+      </div>
+    </div>
 
-                        <!-- Step 2: Message -->
-                        <div class="form-step" data-step="2">
-                            <h3>Share your experience</h3>
-                            <p>Tell me what you think about my teaching</p>
-                            <div class="input-group">
-                                <label for="userMessage">Your Feedback</label>
-                                <textarea id="userMessage" rows="5" placeholder="Write your feedback here..." required></textarea>
-                            </div>
-                            <div class="form-buttons">
-                                <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-                                <button type="button" class="btn btn-primary" onclick="nextStep()">Continue</button>
-                            </div>
-                        </div>
+    <!-- REVIEWS -->
+    <div class="reviews-area">
+      <div class="rev-head ae" id="revHead">Student Reviews</div>
+      <div id="rev-grid"></div>
+    </div>
+  </div>
+</section>
 
-                        <!-- Step 3: Rating -->
-                        <div class="form-step" data-step="3">
-                            <h3>Rate your experience</h3>
-                            <p>How would you rate your overall experience?</p>
-                            <div class="star-rating" id="starRating">
-                                <span class="star" data-rating="1">⭐</span>
-                                <span class="star" data-rating="2">⭐</span>
-                                <span class="star" data-rating="3">⭐</span>
-                                <span class="star" data-rating="4">⭐</span>
-                                <span class="star" data-rating="5">⭐</span>
-                            </div>
-                            <div class="rating-text" id="ratingText"></div>
-                            <div class="form-buttons">
-                                <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-                                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Submit Feedback</button>
-                            </div>
-                        </div>
+         
 
-                        <!-- Step 4: Thank You -->
-                        <div class="form-step" data-step="4">
-                            <div class="thank-you">
-                                <div class="thank-you-icon">🎉</div>
-                                <h3>Thank You!</h3>
-                                <p>Your feedback has been submitted successfully. It means a lot to me!</p>
-                                <div class="form-buttons" style="justify-content: center; margin-top: 2rem;">
-                                    <button type="button" class="btn btn-primary" onclick="resetForm()">Submit Another</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </section>
+<footer>
+  <p>Built with ❤️ for <span>Praveen Sir</span> · Teacher Feedback Portal</p>
+  <p style="margin-top:8px;font-size:.74rem;opacity:.45">© 2025 All rights reserved</p>
+</footer>
 
-        <!-- Reviews Section -->
-        <section id="reviews">
-            <div class="section-header">
-                <span class="section-label animate-on-scroll">Testimonials</span>
-                <h2 class="section-title animate-on-scroll" data-delay="1">What Students Say</h2>
-                <p class="section-subtitle animate-on-scroll" data-delay="2">
-                    Real feedback from real students
-                </p>
-            </div>
-            <div class="reviews-header animate-on-scroll" data-delay="3">
-                <div class="average-rating" id="averageRating">
-                    <div class="average-rating-value" id="avgRatingValue">0.0</div>
-                    <div class="average-rating-info">
-                        <div class="average-rating-stars" id="avgRatingStars">☆☆☆☆☆</div>
-                        <div class="average-rating-count" id="avgRatingCount">No reviews yet</div>
-                    </div>
-                </div>
-            </div>
-            <div class="reviews-grid" id="reviewsGrid">
-                <div class="no-reviews" id="noReviews">
-                    <div class="no-reviews-icon">💬</div>
-                    <p>No reviews yet. Be the first to share your experience!</p>
-                </div>
-            </div>
-        </section>
+<script>
+// ===== EMAILJS =====
+emailjs.init("YJUl2F1JSxQSju6PX");
 
-        <!-- Developer Section -->
-        <section>
-            <div class="developer-section animate-on-scroll">
-                <div class="developer-badge">💻 Web Development</div>
-                <h3 class="developer-title">Want a Premium Website Like This?</h3>
-                <p class="developer-text">
-                    Looking for a stunning, professional website for yourself or your business? I create beautiful, responsive websites that leave lasting impressions.
-                </p>
-                  <a href="mailto:sanjaycreates7076@gmail.com?subject=Website Inquiry&body=Hi Sanjay, I want a website like yours" class="developer-cta">
-                
-                    <span>Get In Touch</span>
-                    <span>→</span>
-                </a>
-            </div>
-        </section>
-    </main>
+// ===== CURSOR =====
+const cur = document.getElementById('cur');
+const curR = document.getElementById('curR');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+(function ring(){rx+=(mx-rx)*.15; ry+=(my-ry)*.15; curR.style.left=rx+'px'; curR.style.top=ry+'px'; requestAnimationFrame(ring);})();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='18px';cur.style.height='18px';curR.style.width='48px';curR.style.height='48px';});
+  el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px';curR.style.width='34px';curR.style.height='34px';});
+});
 
-    <!-- Footer -->
-    <footer>
-        <p class="footer-text">
-            Made with <span class="footer-heart">♥</span> for education
-        </p>
-    </footer>
+// ===== LOADER =====
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('loader').classList.add('hidden');
+    startHero();
+  },2100);
+});
 
-    <!-- Audio for click sound -->
-    <audio id="clickSound" preload="auto">
-        <source src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7v/////////////////////////////////" type="audio/mp3">
-    </audio>
+// ===== HERO ANIM =====
+function startHero(){
+  const n='Praveen';
+  const c=document.getElementById('heroName');
+  n.split('').forEach((ch,i)=>{
+    const s=document.createElement('span');
+    s.className='char';
+    s.textContent=ch;
+    s.style.animationDelay=(.12+i*.1)+'s';
+    s.style.animation='fadeUp .65s ease both';
+    c.appendChild(s);
+  });
+}
 
-    <script>
-        // ============================================
-        // APPLICATION STATE
-        // ============================================
-        const state = {
-            currentStep: 1,
-            rating: 0,
-            feedbacks: []
-        };
+// ===== SCROLL OBSERVER =====
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('vis');
+      if(e.target.classList.contains('skill-card')) animCirc(e.target);
+    }
+  });
+},{threshold:.15});
+document.querySelectorAll('.ae,.glass-card').forEach(el=>obs.observe(el));
 
-        // ============================================
-        // DOM ELEMENTS
-        // ============================================
-        const elements = {
-            introScreen: document.getElementById('introScreen'),
-            introText: document.getElementById('introText'),
-            mainContent: document.getElementById('mainContent'),
-            nav: document.getElementById('nav'),
-            navLinks: document.getElementById('navLinks'),
-            mobileMenuBtn: document.getElementById('mobileMenuBtn'),
-            feedbackForm: document.getElementById('feedbackForm'),
-            starRating: document.getElementById('starRating'),
-            ratingText: document.getElementById('ratingText'),
-            submitBtn: document.getElementById('submitBtn'),
-            reviewsGrid: document.getElementById('reviewsGrid'),
-            noReviews: document.getElementById('noReviews'),
-            avgRatingValue: document.getElementById('avgRatingValue'),
-            avgRatingStars: document.getElementById('avgRatingStars'),
-            avgRatingCount: document.getElementById('avgRatingCount'),
-            clickSound: document.getElementById('clickSound')
-        };
+// ===== CIRCLE ANIM =====
+const C=2*Math.PI*58.8;
+function animCirc(card){
+  const pg=card.querySelector('.cpg');
+  const pt=card.querySelector('.circ-pct');
+  if(!pg||pg.dataset.animated) return;
+  pg.dataset.animated='1';
+  const pct=parseInt(pg.dataset.pct);
+  const off=C-(pct/100)*C;
+  pg.style.strokeDasharray=C;
+  pg.style.strokeDashoffset=off;
+  let cur2=0;
+  const iv=setInterval(()=>{
+    cur2++;
+    if(cur2>pct){cur2=pct;clearInterval(iv);}
+    pt.textContent=cur2+'%';
+  },15);
+}
 
-        // ============================================
-        // INTRO ANIMATION
-        // ============================================
-        function playIntroAnimation() {
-            const text = 'HELLO';
-            const letters = text.split('');
-            
-            letters.forEach((letter, index) => {
-                const span = document.createElement('span');
-                span.className = 'intro-letter';
-                span.textContent = letter;
-                span.style.animationDelay = `${index * 0.15}s`;
-                elements.introText.appendChild(span);
-            });
+// ===== FORM =====
+let step=1, rating=0;
+const rLabels=['','Needs Improvement','Fair','Good','Great','Excellent! 🔥'];
 
-            setTimeout(() => {
-                elements.introScreen.classList.add('hidden');
-                elements.mainContent.classList.add('visible');
-                initScrollAnimations();
-            }, 2500);
-        }
+function goTo(n){
+  if(n===2){
+    const v=document.getElementById('iName').value.trim();
+    if(!v){shake('iName');return;}
+  }
+  if(n===3){
+    const v=document.getElementById('iMsg').value.trim();
+    if(!v){shake('iMsg');return;}
+  }
+  document.getElementById('s'+step).classList.remove('on');
+  step=n;
+  document.getElementById('s'+step).classList.add('on');
+  for(let i=1;i<=4;i++) document.getElementById('d'+i).classList.toggle('on',i<=step);
+}
 
-        // ============================================
-        // NAVIGATION
-        // ============================================
-        function initNavigation() {
-            // Mobile menu toggle
-            elements.mobileMenuBtn.addEventListener('click', () => {
-                elements.mobileMenuBtn.classList.toggle('active');
-                elements.navLinks.classList.toggle('active');
-            });
+function shake(id){
+  const el=document.getElementById(id);
+  el.style.borderColor='#ff2d55';
+  el.style.animation='shk .4s ease';
+  setTimeout(()=>{el.style.borderColor='';el.style.animation='';},500);
+}
+const shkSt=document.createElement('style');
+shkSt.textContent='@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}';
+document.head.appendChild(shkSt);
 
-            // Scroll effect
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    elements.nav.classList.add('scrolled');
-                } else {
-                    elements.nav.classList.remove('scrolled');
-                }
-            });
-        }
+function setR(v){
+  rating=v;
+  document.querySelectorAll('.sbtn').forEach((b,i)=>{
+    b.classList.toggle('on',i<v);
+    b.style.transform = i<v?'scale(1.12)':'scale(1)';
+  });
+  document.getElementById('rateLbl').textContent=rLabels[v]||'';
+}
 
-        function closeMenu() {
-            elements.mobileMenuBtn.classList.remove('active');
-            elements.navLinks.classList.remove('active');
-        }
+async function doSubmit(){
+  if(!rating){alert('Please select a star rating!');return;}
+  const name=document.getElementById('iName').value.trim();
+  const msg=document.getElementById('iMsg').value.trim();
+  const btn=document.getElementById('subBtn');
+  btn.textContent='Sending…';
+  btn.disabled=true;
 
-        // ============================================
-        // SCROLL ANIMATIONS
-        // ============================================
-        function initScrollAnimations() {
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+  try{
+    await emailjs.send('service_5a629ha','template_87kcvt2',{
+      from_name:name,
+      message:msg,
+      rating:rating+' / 5 stars',
+      to_email:'Praveen.teacher001@gmail.com',
+      reply_to:'no-reply@feedback.com'
+    });
+  }catch(e){console.warn('EmailJS:',e);}
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        
-                        // Trigger progress ring animation
-                        if (entry.target.querySelector('.progress-ring')) {
-                            animateProgressRings(entry.target);
-                        }
-                    }
-                });
-            }, observerOptions);
+  // Store
+  const fb={name,message:msg,rating,date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})};
+  const all=getAll();
+  all.unshift(fb);
+  localStorage.setItem('prav_fb',JSON.stringify(all));
 
-            document.querySelectorAll('.animate-on-scroll').forEach(el => {
-                observer.observe(el);
-            });
-        }
+  btn.textContent='Sent ✅';
+  setTimeout(()=>{goTo(4);renderRevs();calcAvg();},900);
+}
 
-        // ============================================
-        // PROGRESS RING ANIMATION
-        // ============================================
-        function animateProgressRings(container) {
-            const rings = container.querySelectorAll('.progress-ring');
-            rings.forEach(ring => {
-                const progress = parseInt(ring.dataset.progress);
-                const circle = ring.querySelector('.progress-ring-fill');
-                const circumference = 2 * Math.PI * 60; // radius = 60
-                const offset = circumference - (progress / 100) * circumference;
-                
-                setTimeout(() => {
-                    circle.style.strokeDashoffset = offset;
-                }, 300);
-            });
-        }
+function resetF(){
+  step=1; rating=0;
+  document.getElementById('iName').value='';
+  document.getElementById('iMsg').value='';
+  document.querySelectorAll('.sbtn').forEach(b=>{b.classList.remove('on');b.style.transform='scale(1)';});
+  document.getElementById('rateLbl').textContent='Tap a star to rate';
+  const sb=document.getElementById('subBtn');
+  sb.textContent='Send Feedback 🚀'; sb.disabled=false;
+  document.querySelectorAll('.form-step').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s1').classList.add('on');
+  for(let i=1;i<=4;i++) document.getElementById('d'+i).classList.toggle('on',i===1);
+}
 
-        // ============================================
-        // STAR RATING
-        // ============================================
-        function initStarRating() {
-            const stars = elements.starRating.querySelectorAll('.star');
-            const ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent!'];
+// ===== STORAGE =====
+function getAll(){try{return JSON.parse(localStorage.getItem('prav_fb'))||[];}catch{return[];}}
 
-            stars.forEach(star => {
-                star.addEventListener('mouseenter', () => {
-                    const rating = parseInt(star.dataset.rating);
-                    highlightStars(rating);
-                });
+function renderRevs(){
+  const all=getAll();
+  const g=document.getElementById('rev-grid');
+  g.innerHTML='';
+  if(!all.length){g.innerHTML='<div class="no-rev">🌟 Be the first to leave a review for Praveen Sir!</div>';return;}
+  all.forEach((fb,i)=>{
+    const d=document.createElement('div');
+    d.className='rev-card';
+    d.style.animationDelay=(i*.09)+'s';
+    d.innerHTML=`<div class="rev-name">${esc(fb.name)}</div><div class="rev-date">${fb.date||''}</div><div class="rev-stars">${'⭐'.repeat(fb.rating)}${'☆'.repeat(5-fb.rating)}</div><div class="rev-msg">${esc(fb.message)}</div>`;
+    g.appendChild(d);
+  });
+}
 
-                star.addEventListener('mouseleave', () => {
-                    highlightStars(state.rating);
-                });
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-                star.addEventListener('click', () => {
-                    const rating = parseInt(star.dataset.rating);
-                    state.rating = rating;
-                    highlightStars(rating);
-                    selectStars(rating);
-                    elements.ratingText.textContent = ratingTexts[rating];
-                    elements.submitBtn.disabled = false;
-                    playClickSound();
-                });
-            });
+function calcAvg(){
+  const all=getAll();
+  if(!all.length){
+    document.getElementById('avgScore').textContent='—';
+    document.getElementById('avgStars').textContent='☆☆☆☆☆';
+    document.getElementById('avgInfo').textContent='No reviews yet';
+    return;
+  }
+  const avg=all.reduce((s,f)=>s+f.rating,0)/all.length;
+  const ar=Math.round(avg*10)/10;
+  const fs=Math.round(avg);
+  document.getElementById('avgScore').textContent=ar.toFixed(1);
+  document.getElementById('avgStars').textContent='⭐'.repeat(fs)+'☆'.repeat(5-fs);
+  document.getElementById('avgInfo').textContent=`Based on ${all.length} review${all.length>1?'s':''}`;
+}
 
-            function highlightStars(rating) {
-                stars.forEach(s => {
-                    const starRating = parseInt(s.dataset.rating);
-                    if (starRating <= rating) {
-                        s.classList.add('hovered');
-                    } else {
-                        s.classList.remove('hovered');
-                    }
-                });
-            }
-
-            function selectStars(rating) {
-                stars.forEach(s => {
-                    const starRating = parseInt(s.dataset.rating);
-                    if (starRating <= rating) {
-                        s.classList.add('selected');
-                    } else {
-                        s.classList.remove('selected');
-                    }
-                });
-            }
-        }
-
-        // ============================================
-        // CLICK SOUND
-        // ============================================
-        function playClickSound() {
-            // Create a simple click sound using Web Audio API
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.1);
-            } catch (e) {
-                // Audio not supported, fail silently
-            }
-        }
-
-        // ============================================
-        // FORM NAVIGATION
-        // ============================================
-        function updateProgressSteps() {
-            document.querySelectorAll('.progress-step').forEach(step => {
-                const stepNum = parseInt(step.dataset.step);
-                step.classList.remove('active', 'completed');
-                
-                if (stepNum === state.currentStep) {
-                    step.classList.add('active');
-                } else if (stepNum < state.currentStep) {
-                    step.classList.add('completed');
-                }
-            });
-
-            document.querySelectorAll('.form-step').forEach(step => {
-                const stepNum = parseInt(step.dataset.step);
-                step.classList.remove('active');
-                if (stepNum === state.currentStep) {
-                    step.classList.add('active');
-                }
-            });
-        }
-
-        function nextStep() {
-            // Validate current step
-            if (state.currentStep === 1) {
-                const name = document.getElementById('userName').value.trim();
-                if (!name) {
-                    shakeElement(document.getElementById('userName'));
-                    return;
-                }
-            } else if (state.currentStep === 2) {
-                const message = document.getElementById('userMessage').value.trim();
-                if (!message) {
-                    shakeElement(document.getElementById('userMessage'));
-                    return;
-                }
-            }
-
-            state.currentStep++;
-            updateProgressSteps();
-        }
-
-        function prevStep() {
-            state.currentStep--;
-            updateProgressSteps();
-        }
-
-        function shakeElement(element) {
-            element.style.animation = 'none';
-            element.offsetHeight; // Trigger reflow
-            element.style.animation = 'shake 0.5s ease';
-            element.style.borderColor = '#ef4444';
-            
-            setTimeout(() => {
-                element.style.borderColor = '';
-            }, 2000);
-        }
-
-        // Add shake animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                20%, 60% { transform: translateX(-10px); }
-                40%, 80% { transform: translateX(10px); }
-            }
-        `;
-        document.head.appendChild(style);
-
-        function resetForm() {
-            state.currentStep = 1;
-            state.rating = 0;
-            document.getElementById('userName').value = '';
-            document.getElementById('userMessage').value = '';
-            elements.ratingText.textContent = '';
-            elements.submitBtn.disabled = true;
-            
-            document.querySelectorAll('.star').forEach(star => {
-                star.classList.remove('selected', 'hovered');
-            });
-            
-            updateProgressSteps();
-        }
-
-        // ============================================
-        // FORM SUBMISSION
-        // ============================================
-        function initFormSubmission() {
-            elements.feedbackForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const feedback = {
-                    id: Date.now(),
-                    name: document.getElementById('userName').value.trim(),
-                    message: document.getElementById('userMessage').value.trim(),
-                    rating: state.rating,
-                    date: new Date().toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    })
-                };
-
-                // Save to localStorage
-                saveFeedback(feedback);
-                
-                // Show thank you screen
-                state.currentStep = 4;
-                updateProgressSteps();
-                
-                // Update reviews display
-                renderReviews();
-                updateAverageRating();
-            });
-        }
-
-        // ============================================
-        // LOCAL STORAGE
-        // ============================================
-        function saveFeedback(feedback) {
-            const feedbacks = getFeedbacks();
-            feedbacks.unshift(feedback);
-            localStorage.setItem('teacherFeedbacks', JSON.stringify(feedbacks));
-        }
-
-        function getFeedbacks() {
-            const stored = localStorage.getItem('teacherFeedbacks');
-            return stored ? JSON.parse(stored) : [];
-        }
-
-        // ============================================
-        // REVIEWS DISPLAY
-        // ============================================
-        function renderReviews() {
-            const feedbacks = getFeedbacks();
-            
-            if (feedbacks.length === 0) {
-                elements.noReviews.style.display = 'block';
-                return;
-            }
-
-            elements.noReviews.style.display = 'none';
-            
-            // Clear existing reviews (except no-reviews message)
-            const existingCards = elements.reviewsGrid.querySelectorAll('.review-card');
-            existingCards.forEach(card => card.remove());
-            
-            // Render feedback cards
-            feedbacks.slice(0, 12).forEach((feedback, index) => {
-                const card = createReviewCard(feedback);
-                card.style.animationDelay = `${index * 0.1}s`;
-                elements.reviewsGrid.appendChild(card);
-            });
-        }
-
-        function createReviewCard(feedback) {
-            const card = document.createElement('div');
-            card.className = 'glass-card review-card animate-on-scroll visible';
-            
-            const initials = feedback.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            const stars = '★'.repeat(feedback.rating) + '☆'.repeat(5 - feedback.rating);
-            
-            card.innerHTML = `
-                <div class="review-header">
-                    <div class="review-author">
-                        <div class="review-avatar">${initials}</div>
-                        <div>
-                            <div class="review-name">${escapeHtml(feedback.name)}</div>
-                            <div class="review-date">${feedback.date}</div>
-                        </div>
-                    </div>
-                    <div class="review-stars">${stars}</div>
-                </div>
-                <p class="review-message">${escapeHtml(feedback.message)}</p>
-            `;
-            
-            return card;
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ============================================
-        // AVERAGE RATING
-        // ============================================
-        function updateAverageRating() {
-            const feedbacks = getFeedbacks();
-            
-            if (feedbacks.length === 0) {
-                elements.avgRatingValue.textContent = '0.0';
-                elements.avgRatingStars.textContent = '☆☆☆☆☆';
-                elements.avgRatingCount.textContent = 'No reviews yet';
-                return;
-            }
-
-            const totalRating = feedbacks.reduce((sum, f) => sum + f.rating, 0);
-            const average = totalRating / feedbacks.length;
-            const roundedAvg = Math.round(average * 10) / 10;
-            
-            elements.avgRatingValue.textContent = roundedAvg.toFixed(1);
-            
-            const fullStars = Math.floor(average);
-            const halfStar = average % 1 >= 0.5;
-            let starsHtml = '★'.repeat(fullStars);
-            if (halfStar && fullStars < 5) starsHtml += '★';
-            starsHtml += '☆'.repeat(5 - starsHtml.length);
-            elements.avgRatingStars.textContent = starsHtml;
-            
-            const reviewWord = feedbacks.length === 1 ? 'review' : 'reviews';
-            elements.avgRatingCount.textContent = `Based on ${feedbacks.length} ${reviewWord}`;
-            
-            // Update hero stat
-            document.getElementById('statRating').textContent = roundedAvg.toFixed(1);
-        }
-
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            playIntroAnimation();
-            initNavigation();
-            initStarRating();
-            initFormSubmission();
-            renderReviews();
-            updateAverageRating();
-        });
-    </script>
+// INIT
+renderRevs();
+calcAvg();
+</script>
 </body>
 </html>

@@ -183,6 +183,103 @@ textarea.finput{min-height:145px}
 .tc{text-align:center}
 .mxa{max-width:1100px;margin-left:auto;margin-right:auto}
 
+/* DEVELOPER SECTION */
+#developer{padding:clamp(4rem,8vw,8rem) 2rem}
+.dev-inner{
+  max-width:860px;margin:0 auto;
+  background:linear-gradient(135deg,rgba(0,245,255,.05) 0%,rgba(191,90,242,.07) 50%,rgba(255,45,85,.05) 100%);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:28px;
+  padding:clamp(2.5rem,5vw,4rem) clamp(2rem,5vw,4rem);
+  backdrop-filter:blur(28px);
+  position:relative;overflow:hidden;
+  text-align:center;
+  opacity:0;transform:translateY(32px);
+  transition:opacity .7s,transform .7s,border-color .3s,box-shadow .3s;
+}
+.dev-inner.vis{opacity:1;transform:translateY(0)}
+.dev-inner::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 40%,rgba(0,245,255,.04) 60%,transparent 80%);
+  animation:devShine 4s ease-in-out infinite alternate;
+}
+@keyframes devShine{from{opacity:0}to{opacity:1}}
+.dev-inner::after{
+  content:'';position:absolute;top:-1px;left:10%;right:10%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--neon-cyan),var(--neon-purple),var(--neon-pink),transparent);
+  border-radius:99px;
+}
+.dev-inner:hover{border-color:rgba(0,245,255,.25);box-shadow:0 0 60px rgba(0,245,255,.08),0 30px 80px rgba(0,0,0,.4)}
+.dev-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(191,90,242,.12);
+  border:1px solid rgba(191,90,242,.35);
+  border-radius:99px;padding:6px 18px;
+  font-size:.76rem;font-weight:600;letter-spacing:.15em;
+  color:var(--neon-purple);text-transform:uppercase;
+  margin-bottom:1.5rem;
+}
+.dev-icon{font-size:1rem}
+.dev-title{
+  font-family:var(--font-display);
+  font-size:clamp(1.6rem,4vw,2.5rem);
+  font-weight:800;line-height:1.15;
+  margin-bottom:1.1rem;
+}
+.dev-title span{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.dev-text{
+  color:var(--text-secondary);font-size:clamp(.9rem,2vw,1.05rem);
+  line-height:1.8;max-width:580px;margin:0 auto 2.2rem;
+}
+.dev-features{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:2.5rem;
+}
+.dev-feat{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 16px;border-radius:99px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  font-size:.8rem;color:var(--text-secondary);
+  transition:border-color .3s,color .3s;
+}
+.dev-feat:hover{border-color:rgba(0,245,255,.3);color:var(--neon-cyan)}
+.dev-cta{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:16px 44px;border-radius:99px;
+  background:linear-gradient(135deg,var(--neon-purple),var(--neon-pink));
+  color:#fff;font-family:var(--font-display);
+  font-size:1rem;font-weight:700;
+  text-decoration:none;
+  box-shadow:0 0 30px rgba(191,90,242,.4),0 0 60px rgba(255,45,85,.2);
+  transition:transform .25s,box-shadow .25s;
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.dev-cta::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent,rgba(255,255,255,.2),transparent);
+  transform:translateX(-100%) skewX(-15deg);transition:transform .55s;
+}
+.dev-cta:hover::before{transform:translateX(220%) skewX(-15deg)}
+.dev-cta:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 0 50px rgba(191,90,242,.6),0 0 80px rgba(255,45,85,.3)}
+.dev-cta-arrow{font-size:1.1rem;transition:transform .25s}
+.dev-cta:hover .dev-cta-arrow{transform:translateX(4px)}
+.dev-socials{margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.dev-social-link{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 20px;border-radius:99px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  color:var(--text-secondary);font-size:.83rem;
+  text-decoration:none;
+  transition:background .3s,border-color .3s,color .3s,box-shadow .3s;
+}
+.dev-social-link:hover{background:rgba(0,245,255,.08);border-color:rgba(0,245,255,.3);color:var(--neon-cyan);box-shadow:0 0 18px rgba(0,245,255,.12)}
+.dev-orb{
+  position:absolute;border-radius:50%;filter:blur(60px);opacity:.12;pointer-events:none;
+}
+.dev-orb1{width:300px;height:300px;background:radial-gradient(circle,var(--neon-purple),transparent);top:-100px;right:-80px}
+.dev-orb2{width:250px;height:250px;background:radial-gradient(circle,var(--neon-cyan),transparent);bottom:-80px;left:-60px}
+
 footer{text-align:center;padding:3rem 2rem;border-top:1px solid rgba(255,255,255,.05);color:var(--text-secondary);font-size:.84rem;position:relative;z-index:1}
 footer span{color:var(--neon-cyan)}
 </style>
@@ -194,7 +291,7 @@ footer span{color:var(--neon-cyan)}
 
 <!-- LOADER -->
 <div id="loader">
-  <div class="loader-name"> PRAVEEN </div>
+  <div class="loader-name">PRAVEEN </div>
   <div class="loader-bar-bg"><div class="loader-bar"></div></div>
   <div class="loader-sub">Teacher Feedback Portal</div>
 </div>
@@ -206,7 +303,7 @@ footer span{color:var(--neon-cyan)}
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">Praveen</div>
+  <div class="nav-logo">PRAVEEN</div>
   <ul class="nav-links">
     <li><a href="#hero">Home</a></li>
     <li><a href="#about">About</a></li>
@@ -422,11 +519,36 @@ footer span{color:var(--neon-cyan)}
   </div>
 </section>
 
-         
+<!-- DEVELOPER SECTION -->
+<section id="developer">
+  <div class="dev-inner ae">
+    <div class="dev-orb dev-orb1"></div>
+    <div class="dev-orb dev-orb2"></div>
+    <div class="dev-badge"><span class="dev-icon">💻</span> Web Development</div>
+    <h3 class="dev-title">Want a <span>Premium Website</span> Like This?</h3>
+    <p class="dev-text">Looking for a stunning, professional website for yourself, your school, or your business? I craft beautiful, fully responsive websites that leave lasting impressions — just like this one.</p>
+    <div class="dev-features">
+      <span class="dev-feat">✦ Glassmorphism UI</span>
+      <span class="dev-feat">✦ Fully Responsive</span>
+      <span class="dev-feat">✦ Smooth Animations</span>
+      <span class="dev-feat">✦ Email Integration</span>
+      <span class="dev-feat">✦ Fast &amp; Modern</span>
+      <span class="dev-feat">✦ Custom Design</span>
+    </div>
+    <a href="mailto:sanjaycreates7076@gmail.com?subject=Website%20Inquiry&body=Hi%20Sanjay%2C%20I%20want%20a%20website%20like%20yours" class="dev-cta">
+      <span>Get In Touch</span>
+      <span class="dev-cta-arrow">→</span>
+    </a>
+    <div class="dev-socials">
+      <a href="mailto:sanjaycreates7076@gmail.com" class="dev-social-link"><span>📧</span> sanjaycreates7076@gmail.com</a>
+    </div>
+    <p style="margin-top:1.8rem;font-size:.78rem;color:var(--text-secondary);opacity:.65">Crafted by <span style="color:var(--neon-purple);font-weight:600">Sanjay</span> · Web Developer</p>
+  </div>
+</section>
 
 <footer>
   <p>Built with ❤️ for <span>Praveen Sir</span> · Teacher Feedback Portal</p>
-  <p style="margin-top:8px;font-size:.74rem;opacity:.45">© 2025 All rights reserved</p>
+  <p style="margin-top:8px;font-size:.74rem;opacity:.45">Developed by <span style="color:var(--neon-purple)">Sanjay</span> · © 2025 All rights reserved</p>
 </footer>
 
 <script>
